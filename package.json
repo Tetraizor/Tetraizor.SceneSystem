@@ -9,7 +9,7 @@
   },
   "description": "A scene management system that works additively to always include systems in an isolated scene.",
   "dependencies": {
-    "com.tetraizor.systemmanager": "https://github.com/Tetraizor/Tetraizor.Bootstrapper.git#1.1.0"
+    "com.tetraizor.bootstrapper": "https://github.com/Tetraizor/Tetraizor.Bootstrapper.git#1.1.0"
   },
   "repository": {
     "type": "git",
