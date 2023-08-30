@@ -21,7 +21,12 @@ namespace Tetraizor.SceneSystem
 
         #endregion
 
-        public IEnumerator LoadScene(int sceneIndex)
+        public void SwitchScene(int sceneIndex)
+        {
+            StartCoroutine(SwitchSceneAsync(sceneIndex));
+        }
+
+        public IEnumerator SwitchSceneAsync(int sceneIndex)
         {
             Debug.Log($"Starting to load scene with index {sceneIndex}");
 
@@ -57,12 +62,12 @@ namespace Tetraizor.SceneSystem
 
             if (autoSceneChanger == null)
             {
-                StartCoroutine(LoadScene(_firstSceneIndex));
+                SwitchScene(_firstSceneIndex);
             }
             else
             {
                 DestroyImmediate(autoSceneChanger.gameObject);
-                StartCoroutine(LoadScene(autoSceneChanger.SceneToAutoLoad));
+                SwitchScene(autoSceneChanger.SceneToAutoLoad);
             }
         }
 
