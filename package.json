@@ -1,0 +1,18 @@
+{
+  "name": "com.tetraizor.scenesystem",
+  "displayName": "Scene System",
+  "version": "1.0.0",
+  "author": {
+    "name": "Umuthan Ozel",
+    "email": "ozelumuthan@gmail.com",
+    "url": "umuthanozel.com"
+  },
+  "description": "A scene management system that works additively to always include systems in an isolated scene.",
+  "dependencies": {
+    "com.tetraizor.systemmanager": "https://github.com/Tetraizor/Tetraizor.Bootstrapper.git#1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tetraizor/Tetraizor.SceneSystem.git"
+  }
+}
