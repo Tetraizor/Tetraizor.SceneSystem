@@ -1,8 +1,8 @@
 using System.Collections;
 using Tetraizor.MonoSingleton;
 using Tetraizor.SceneSystem.Utils;
-using Tetraizor.SystemManager;
-using Tetraizor.SystemManager.Base;
+using Tetraizor.Bootstrap.Base;
+using Tetraizor.Bootstrap;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -11,15 +11,18 @@ namespace Tetraizor.SceneSystem
 {
     public class SceneSystem : MonoSingleton<SceneSystem>, IPersistentSystem
     {
-        #region
+        #region Properties
 
-        [Header("Scene References")] [SerializeField]
+        [Header("Scene References")]
+        [SerializeField]
         private int _firstSceneIndex = 2;
 
         private Scene _currentScene;
         [HideInInspector] public UnityEvent<float> SceneLoadStateChangeEvent = new UnityEvent<float>();
 
         #endregion
+
+        #region Scene Management Methods
 
         public void SwitchScene(int sceneIndex)
         {
@@ -28,8 +31,6 @@ namespace Tetraizor.SceneSystem
 
         public IEnumerator SwitchSceneAsync(int sceneIndex)
         {
-            Debug.Log($"Starting to load scene with index {sceneIndex}");
-
             AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
             AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(_currentScene);
 
@@ -53,6 +54,10 @@ namespace Tetraizor.SceneSystem
             SceneManager.SetActiveScene(_currentScene);
         }
 
+        #endregion
+
+        #region Event Callbacks
+
         private void OnSystemLoadingComplete()
         {
             _currentScene = SceneManager.GetActiveScene();
@@ -71,13 +76,15 @@ namespace Tetraizor.SceneSystem
             }
         }
 
+        #endregion
+
         #region IPersistentSystem Methods
 
         public IEnumerator LoadSystem()
         {
-            SystemLoader systemLoader = SystemLoader.Instance;
+            Bootstrapper systemLoader = Bootstrapper.Instance;
 
-            systemLoader.SystemLoadingCompleteEvent.AddListener(OnSystemLoadingComplete);
+            systemLoader.BootCompleteEvent.AddListener(OnSystemLoadingComplete);
 
             yield return null;
         }
