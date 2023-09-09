@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Tetraizor.DebugUtils;
 
 namespace Tetraizor.SceneSystem.Utils
 {
@@ -20,8 +21,8 @@ namespace Tetraizor.SceneSystem.Utils
 
                 // Get back to Bootstrapper scene.
                 SceneManager.LoadScene(0);
-                
-                Debug.Log("Systems are not loaded. Reloading scene from boot.");
+
+                DebugBus.LogPrint("Systems are not loaded. Reloading scene from boot.");
             }
             else
             {

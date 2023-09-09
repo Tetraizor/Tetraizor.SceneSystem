@@ -6,6 +6,7 @@ using Tetraizor.Bootstrap;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using Tetraizor.DebugUtils;
 
 namespace Tetraizor.SceneSystem
 {
@@ -52,6 +53,8 @@ namespace Tetraizor.SceneSystem
 
             _currentScene = SceneManager.GetSceneByBuildIndex(sceneIndex);
             SceneManager.SetActiveScene(_currentScene);
+
+            DebugBus.LogPrint($"Finished loading scene {SceneManager.GetSceneByBuildIndex(sceneIndex).name}.");
         }
 
         #endregion
