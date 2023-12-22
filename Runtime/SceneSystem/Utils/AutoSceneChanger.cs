@@ -12,7 +12,7 @@ namespace Tetraizor.SceneSystem.Utils
 
         private void Awake()
         {
-            if (SceneSystem.Instance == null)
+            if (SceneLoadingSystem.Instance == null)
             {
                 // Set DontDestroyOnLoad for SceneSystem to understand there is an AutoScene operation.
                 DontDestroyOnLoad(this);

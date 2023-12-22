@@ -1,16 +1,33 @@
 using System.Collections;
+using System;
+
 using Tetraizor.MonoSingleton;
 using Tetraizor.SceneSystem.Utils;
 using Tetraizor.Bootstrap.Base;
 using Tetraizor.Bootstrap;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 using Tetraizor.DebugUtils;
+
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Tetraizor.SceneSystem
 {
-    public class SceneSystem : MonoSingleton<SceneSystem>, IPersistentSystem
+    #region Delegates
+    public delegate void SceneLoadHandler(object sender, SceneLoadEventArgs e);
+    public class SceneLoadEventArgs : EventArgs
+    {
+        public int SceneIndex { get; set; }
+    }
+
+    public delegate void SceneLoadProgressHandler(object sender, SceneLoadProgressEventArgs e);
+    public class SceneLoadProgressEventArgs : EventArgs
+    {
+        public int SceneIndex { get; set; }
+        public float Progress { get; set; }
+    }
+    #endregion
+
+    public class SceneLoadingSystem : MonoSingleton<SceneLoadingSystem>, IPersistentSystem
     {
         #region Properties
 
@@ -19,7 +36,15 @@ namespace Tetraizor.SceneSystem
         private int _firstSceneIndex = 2;
 
         private Scene _currentScene;
-        [HideInInspector] public UnityEvent<float> SceneLoadStateChangeEvent = new UnityEvent<float>();
+
+        [Header("Events")]
+        public SceneLoadProgressHandler SceneLoadStateChanged;
+
+        public SceneLoadHandler SceneUnloadCompleted;
+        public SceneLoadHandler SceneUnloadStarted;
+
+        public SceneLoadHandler SceneLoadCompleted;
+        public SceneLoadHandler SceneLoadStarted;
 
         #endregion
 
@@ -32,27 +57,37 @@ namespace Tetraizor.SceneSystem
 
         public IEnumerator SwitchSceneAsync(int sceneIndex)
         {
+            SceneUnloadStarted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = _currentScene.buildIndex });
+            SceneLoadStarted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = sceneIndex });
+
             AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
             AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(_currentScene);
 
             loadOperation.allowSceneActivation = false;
+            print("Test1");
 
             while (loadOperation.progress < .89f)
             {
-                SceneLoadStateChangeEvent?.Invoke(loadOperation.progress);
+                SceneLoadStateChanged?.Invoke(this, new SceneLoadProgressEventArgs { SceneIndex = sceneIndex, Progress = loadOperation.progress });
                 yield return null;
             }
+            print("Test2");
 
             loadOperation.allowSceneActivation = true;
 
             while (!loadOperation.isDone)
             {
-                SceneLoadStateChangeEvent?.Invoke(loadOperation.progress);
+                SceneLoadStateChanged?.Invoke(this, new SceneLoadProgressEventArgs { SceneIndex = sceneIndex, Progress = loadOperation.progress });
                 yield return null;
             }
 
+            print("Test3");
+
             _currentScene = SceneManager.GetSceneByBuildIndex(sceneIndex);
             SceneManager.SetActiveScene(_currentScene);
+
+            SceneUnloadCompleted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = _currentScene.buildIndex });
+            SceneLoadCompleted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = sceneIndex });
 
             DebugBus.LogPrint($"Finished loading scene {SceneManager.GetSceneByBuildIndex(sceneIndex).name}.");
         }
