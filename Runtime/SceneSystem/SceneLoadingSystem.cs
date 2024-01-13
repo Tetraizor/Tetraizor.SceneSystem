@@ -55,8 +55,19 @@ namespace Tetraizor.SceneSystem
             StartCoroutine(SwitchSceneAsync(sceneIndex));
         }
 
+        public void RestartScene()
+        {
+            SceneManager.LoadScene(_currentScene.buildIndex);
+        }
+
         public IEnumerator SwitchSceneAsync(int sceneIndex)
         {
+            if (sceneIndex == _currentScene.buildIndex)
+            {
+                DebugBus.LogWarning($"Scene {SceneManager.GetSceneByBuildIndex(sceneIndex).name} is already loaded.");
+                yield break;
+            }
+
             SceneUnloadStarted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = _currentScene.buildIndex });
             SceneLoadStarted?.Invoke(this, new SceneLoadEventArgs { SceneIndex = sceneIndex });
 
@@ -64,14 +75,12 @@ namespace Tetraizor.SceneSystem
             AsyncOperation unloadOperation = SceneManager.UnloadSceneAsync(_currentScene);
 
             loadOperation.allowSceneActivation = false;
-            print("Test1");
 
             while (loadOperation.progress < .89f)
             {
                 SceneLoadStateChanged?.Invoke(this, new SceneLoadProgressEventArgs { SceneIndex = sceneIndex, Progress = loadOperation.progress });
                 yield return null;
             }
-            print("Test2");
 
             loadOperation.allowSceneActivation = true;
 
@@ -80,8 +89,6 @@ namespace Tetraizor.SceneSystem
                 SceneLoadStateChanged?.Invoke(this, new SceneLoadProgressEventArgs { SceneIndex = sceneIndex, Progress = loadOperation.progress });
                 yield return null;
             }
-
-            print("Test3");
 
             _currentScene = SceneManager.GetSceneByBuildIndex(sceneIndex);
             SceneManager.SetActiveScene(_currentScene);
@@ -101,7 +108,7 @@ namespace Tetraizor.SceneSystem
             _currentScene = SceneManager.GetActiveScene();
 
             // Check if game is not started from Bootstrapper scene.
-            var autoSceneChanger = FindObjectOfType<AutoSceneChanger>();
+            var autoSceneChanger = FindFirstObjectByType<AutoSceneChanger>();
 
             if (autoSceneChanger == null)
             {
