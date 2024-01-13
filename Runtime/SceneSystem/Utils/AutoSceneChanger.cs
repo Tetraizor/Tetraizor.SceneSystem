@@ -15,6 +15,7 @@ namespace Tetraizor.SceneSystem.Utils
             if (SceneLoadingSystem.Instance == null)
             {
                 // Set DontDestroyOnLoad for SceneSystem to understand there is an AutoScene operation.
+                transform.SetParent(null);
                 DontDestroyOnLoad(this);
 
                 SceneToAutoLoad = SceneManager.GetActiveScene().buildIndex;
